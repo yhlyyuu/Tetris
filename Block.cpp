@@ -56,7 +56,6 @@ int Block::getY() {
 }
 
 Block Block::createRandomBlock() {
-    //隨機創建一個方塊
    
     Type randomType = static_cast<Type>(rand() % 7);
 
