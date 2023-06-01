@@ -1,21 +1,25 @@
-#ifndef MOVE_H
-#define MOVE_H
-
-#include <vector>
-#include<iostream>
-class Move{
-public:
-    void move(int stepA, int stepB);//方塊移動
-    void Transform();//方塊轉向
-    bool Stop();//結束遊戲
-    int point();//獲得加分
-    bool Judge();//判斷方塊是否可以變換樣式
-
+#ifndef CELL_H
+#define CELL_H
+#include <iostream>
+class Move {
 private:
-    int x, y; // 座標
-    int FG;//變化型別
+    int x;
+    int y;
+    char type;
+public:
+    Move(int x = 0, int y = 0, char type = ' ');
+
+    int get_x() const { return x; }
+    int get_y() const { return y; }
+    char get_type() const { return type; }
+    void set_type(char c) { type = c; }
+
+
+    Move shift_copy(int x_shift, int y_shift) const;
+    void move(int x_move, int y_move);
+    void set_coordinate(int x_new, int y_new);
+
+    bool operator==(const Move& rhs) const;
 };
-
-
 
 #endif
