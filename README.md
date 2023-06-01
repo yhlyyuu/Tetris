@@ -26,8 +26,8 @@ Game.cpp
   Move.h  
   Move.cpp  
 3.實現遊戲邏輯(葉芷安)  
-    Map.h  
-    Map.cpp  
+    Board.h  
+    Board.cpp  
 4.測試和調試代碼(陳冠廷)   
     main.cpp  
 
