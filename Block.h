@@ -1,23 +1,30 @@
-﻿#ifndef BLOCK_H
-#define BLOCK_H
+#ifndef BOARD_H
+#define BOARD_H
 
+#include "Block.h"
 #include <vector>
-#include<iostream>
+#include <algorithm>
 using namespace std;
-class Block {
+class Board {
 private:
-    enum Type { I, J, L, O, S, T, Z };
-    Type t;
-    vector<vector<int>> shape; // 方塊形狀，用二維矩陣表示
-    int x, y; 
+    int width;
+    int height;
+    vector<Move> all_points;
+    vector<Move> built_points;
 public:
-    Block();
-    Block(Type t1, int x1, int y1); 
-    vector<vector<int>> getShape();
-    int getX();
-    int getY();
-    static Block createRandomBlock(); // 創建隨機方塊
-   
+    Board(int width = 30, int height = 30);
+
+    int get_width() { return width; }
+    int get_height() { return height; }
+    vector<Move> get_all_points() { return all_points; }
+    vector<Move> get_built_points() { return built_points; }
+    void set_built_points(vector<Move> built_points) { this->built_points = built_points; }
+    void set_border();
+
+    void insert_to_built_points(vector<Move> insert_points);
+    int remove_row();
+    void refresh();
+
 };
 
 #endif
