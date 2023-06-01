@@ -1,110 +1,143 @@
-#include <iostream>
-#include <stdlib.h>
-#include <time.h>
 #include "Game.h"
-#include "Map.h"
-using namespace std;
 
+Game::Game()
+    :score{ 0 }, speed{ 200 }, run{ true } {
 
-Game::Game(int r, int c) {
-	row = r;
-	col = c;
-	score = 0;
-	level = 1;
-	map = vector<vector<int>>(row, vector<int>(col, 0));
+    do {
+        system("cls");
+        board = Board(20, 20);
+        running();
+    } while (regame());
+
 }
 
-void Game::start() {
-	Map map;
-	// 隨機生成一個方塊
-	currentBlock = Block::createRandomBlock();
-	// 遊戲主循環
-	while (true) {
-		system("cls");
-		map.printMap();
-		printScore();
-		printLevel();
-		// 當前方塊自由下落
-		
 
+void Game::running() {
+    while (!game_over()) {
+        curr_piece = Block(Move((board.get_width() - 1) / 2, board.get_height(), 'O'));
+        while (!hit_built_points_down()) {
+            speed = 200;
+            ClearScreen();
+            curr_piece.fall_down();
+            score += board.remove_row();
+            board.refresh();
+            refresh_final_points();
+            draw();
+            controls();
+            Sleep(speed);
 
-
-		// 將當前方塊加入地圖
-		updateMap();
-		map.printMap();
-		updateScore();
-		updateLevel();
-		
-		if (gameOver()) {
-			cout << "Game over! " << endl;
-			break;
-		}
-		// 隨機生成一個方塊
-		currentBlock = Block::createRandomBlock();
-	}
+        }
+    }
 }
 
-bool Game::gameOver() {
-	for (int j = 0; j < col; j++) {
-		if (map[0][j] == 1) {
-			return true;
-		}
-	}
-	return false;
+bool Game::game_over() {
+    for (const auto& pnt : board.get_built_points())
+        if (pnt.get_y() >= board.get_height() - 2) {
+            return true;
+        }
+    return false;
 }
 
-void Game::updateMap() {
-	for (int i = 0; i < currentBlock.getShape().size(); i++) {
-		for (int j = 0; j < currentBlock.getShape()[i].size(); j++) {
-			if (currentBlock.getShape()[i][j] == 1) {
-				map[currentBlock.getX() + i][currentBlock.getY() + j] = 1;
-			}
-		}
-	}
+bool Game::regame() {
+    std::cout << "======Game over======" << std::endl;
+    std::cout << "replay ?? (y/n) " << std::endl;
+    char c{};
+    bool isvalid{ false };
+    do {
+        std::cin >> c;
+        if (c == 'y')
+            return true;
+        else if (c == 'n')
+            return false;
+        else {
+            std::cout << "invalid entry\n";
+            isvalid = true;
+        }
+    } while (isvalid);
 }
 
-void Game::updateScore() {
-	int line = 0;
-	for (int i = 0; i < row; i++) {
-		bool flag = true;
-		for (int j = 0; j < col; j++) {
-			if (map[i][j] == 0) {
-				flag = false;
-				break;
-			}
-		}
-		if (flag) {
-			line++;
-			map.erase(map.begin() + i);
-			map.insert(map.begin(), vector<int>(col, 0));
-		}
-	}
-	switch (line) {
-	case 1:
-		score += 10;
-		break;
-	case 2:
-		score += 30;
-		break;
-	case 3:
-		score += 50;
-		break;
-	case 4:
-		score += 80;
-		break;
-	default:
-		break;
-	}
+bool Game::hit_built_points_down() {
+
+    for (const auto& next_piece_pnt : curr_piece.next_fall_down_body()) {
+        //hit the ground
+        if (next_piece_pnt.get_y() == 0) {
+            board.insert_to_built_points(curr_piece.get_body());
+            return true;
+        }
+        //hit built points
+        for (const auto& built_pnt : board.get_built_points())
+            if (next_piece_pnt == built_pnt) {
+                board.insert_to_built_points(curr_piece.get_body());
+                return true;
+            }
+    }
+
+    return false;
 }
 
-void Game::updateLevel() {
-	level = score / 100 + 1;
+bool Game::checked_move(enum move_direction dir) {
+    for (const auto& next_piece_pnt : curr_piece.next_move_body(dir)) {
+        if (next_piece_pnt.get_x() == 0 || next_piece_pnt.get_x() == (board.get_width() - 1))
+            return false;
+
+        for (const auto& built_pnt : board.get_built_points())
+            if (built_pnt == next_piece_pnt)
+                return false;
+    }
+
+    curr_piece.move(dir);
+    return true;
 }
 
-void Game::printScore() {
-	cout << "Score: " << score << endl;
+bool Game::checked_rotate() {
+    for (const auto& next_piece_pnt : curr_piece.next_rotate_body()) {
+        if (next_piece_pnt.get_x() == 0 || next_piece_pnt.get_x() == (board.get_width() - 1))
+            return false;
+
+        for (const auto& built_pnt : board.get_built_points())
+            if (built_pnt == next_piece_pnt)
+                return false;
+    }
+
+    curr_piece.rotate();
+    return true;
 }
 
-void Game::printLevel() {
-	cout << "Level: " << level << endl;
+void Game::refresh_final_points() {
+
+    final_pionts = board.get_all_points();
+    for (auto& final_pnt : final_pionts)
+        for (auto piece_pnt : curr_piece.get_body())
+            if (final_pnt == piece_pnt)
+                final_pnt = piece_pnt;
+}
+
+void Game::draw() {
+    for (int i{ board.get_height() - 1 }; i >= 0; i--) {
+        for (int j{ 0 }; j < board.get_width(); j++) {
+            auto t = std::find(final_pionts.begin(), final_pionts.end(), Move(j, i));
+            std::cout << t->get_type();
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "\n Score = " << score << std::endl;
+}
+
+void Game::controls() {
+    if (GetAsyncKeyState(VK_UP))
+        checked_rotate();
+    else if (GetAsyncKeyState(VK_DOWN))
+        speed = 10;
+    else if (GetAsyncKeyState(VK_RIGHT))
+        checked_move(rightO);
+    else if (GetAsyncKeyState(VK_LEFT))
+        checked_move(leftO);
+    else if (GetAsyncKeyState('P')) {
+        //run = gameover();
+    }
+}
+
+void Game::ClearScreen() {
+    // Function which cleans the screen without flickering
+    COORD cursorPosition;   cursorPosition.X = 0;   cursorPosition.Y = 0;   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
 }
