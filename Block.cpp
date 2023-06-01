@@ -1,68 +1,66 @@
 #include "Block.h"
-#include <vector>
 using namespace std;
-Block::Block() {
-    x = 0;
-    y = 0;
-    t = I;
-    shape = vector<vector<int>>(4, vector<int>(4, 0));
+Block::Block(Move pos)
+    :pos{ pos } {
+    srand(time(0));
+    type = static_cast<piece_type>(rand() % 7);
+
+    if (type == t_piece)
+        body = { pos, pos.shift_copy(1, 0), pos.shift_copy(-1, 0), pos.shift_copy(0, 1) };
+    else if (type == i_piece)
+        body = { pos, pos.shift_copy(0, -1), pos.shift_copy(0, 1), pos.shift_copy(0, 2) };
+    else if (type == o_piece)
+        body = { pos, pos.shift_copy(0, 1), pos.shift_copy(1, 0), pos.shift_copy(1, 1) };
+    else if (type == l_piece)
+        body = { pos, pos.shift_copy(0, 1), pos.shift_copy(0, -1), pos.shift_copy(1, -1) };
+    else if (type == j_piece)
+        body = { pos, pos.shift_copy(-1, 0), pos.shift_copy(0, 1), pos.shift_copy(0, 2) };
+    else if (type == s_piece)
+        body = { pos, pos.shift_copy(-1, 0), pos.shift_copy(0, 1), pos.shift_copy(1, 1) };
+    else if (type == z_piece)
+        body = { pos, pos.shift_copy(1, 0), pos.shift_copy(0, 1), pos.shift_copy(-1, 1) };
 }
 
-Block::Block(Type t1, int x1, int y1) {
-    t = t1;
-    x = x1;
-    y = y1;
-    switch (t) {
-    case I:
-        shape = { {1,1,1,1} };
-        break;
-    case J:
-        shape = { {0,0,1},
-                  {1,1,1} };
-        break;
-    case L:
-        shape = { {1,0,0},
-                  {1,1,1} };
-        break;
-    case O:
-        shape = { {1,1},
-                  {1,1} };
-        break;
-    case S:
-        shape = { {0,1,1},
-                  {1,1,0} };
-        break;
-    case T:
-        shape = { {0,1,0},
-                  {1,1,1} };
-        break;
-    case Z:
-        shape = { {1,1,0},
-                  {0,1,1} };
-        break;
+void Block::fall_down() {
+    pos.move(0, -1);
+    for (auto& point : body)
+        point.move(0, -1);
+}
+
+vector<Move> Block::next_fall_down_body() {
+    vector<Move> next_body;
+    for (const auto& point : body)
+        next_body.push_back(point.shift_copy(0, -1));
+    return next_body;
+}
+
+void Block::move(enum move_direction dir) {
+    pos.move(dir, 0);
+    for (auto& point : body)
+        point.move(dir, 0);
+}
+
+vector<Move> Block::next_move_body(enum move_direction dir) {
+    vector<Move> next_body;
+    for (const auto& point : body)
+        next_body.push_back(point.shift_copy(dir, 0));
+    return next_body;
+}
+
+void Block::rotate() {
+    for (auto& point : body) {
+        int point_x = point.get_x() - pos.get_x();
+        int point_y = point.get_y() - pos.get_y();
+        point.set_coordinate((-1 * point_y) + pos.get_x(), point_x + pos.get_y());
     }
 }
 
-vector<vector<int>>Block::getShape() {
-    return shape;
+vector<Move> Block::next_rotate_body() {
+    vector<Move> next_body;
+    for (const auto& point : body) {
+        int point_x = point.get_x() - pos.get_x();
+        int point_y = point.get_y() - pos.get_y();
+        next_body.push_back(Move((-1 * point_y) + pos.get_x(), point_x + pos.get_y()));
+    }
+    return next_body;
 }
-
-int Block::getX() {
-    return x;
-}
-
-int Block::getY() {
-    return y;
-}
-
-Block Block::createRandomBlock() {
-   
-    Type randomType = static_cast<Type>(rand() % 7);
-
-    int randomX = 0; 
-    int randomY = 0; 
-
-    return Block(randomType, randomX, randomY);
-}
-
-
