@@ -1,45 +1,29 @@
-#if !defined(PIECE_H_)
-#define PIECE_H_
+#ifndef BOARD_H
+#define BOARD_H
 
-#include "Move.h"
+#include "Block.h"
 #include <vector>
-#include <stdlib.h>
-#include <time.h>
+#include <algorithm>
 using namespace std;
-enum piece_type {
-    t_piece,
-    i_piece,
-    o_piece,
-    l_piece,
-    j_piece,
-    s_piece,
-    z_piece
-};
-
-enum move_direction {
-    rightO = 1,
-    leftO = -1
-};
-
-class Block {
+class Board {
 private:
-    enum piece_type type;
-    vector<Move> body;
-    Move pos;
-
-
+    int width;
+    int height;
+    vector<Move> all_points;
+    vector<Move> built_points;
 public:
-    Block() = default;
-    Block(Move pos);
-    void fall_down();
-    vector<Move> next_fall_down_body();
-    void move(enum move_direction dir);
-    vector<Move> next_move_body(enum move_direction dir);
-    void rotate();
-    vector<Move> next_rotate_body();
+    Board(int width = 30, int height = 30);
 
-    vector<Move> get_body() { return body; }
-    void set_body(vector<Move> body) { this->body = body; }
+    int get_width() { return width; }
+    int get_height() { return height; }
+    vector<Move> get_all_points() { return all_points; }
+    vector<Move> get_built_points() { return built_points; }
+    void set_built_points(vector<Move> built_points) { this->built_points = built_points; }
+    void set_border();
+
+    void insert_to_built_points(vector<Move> insert_points);
+    int remove_row();
+    void refresh();
 
 };
 
