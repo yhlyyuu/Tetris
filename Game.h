@@ -1,27 +1,42 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <iostream>
 #include <vector>
+#include <algorithm>
+#include "windows.h"
+
+#include "Move.h"
 #include "Block.h"
-using namespace std;
+#include "Board.h"
+
 class Game {
-public:
-    Game(int row = 20, int col = 10);  // 篶硑ㄧ计
-    void start();  // 秨﹍笴栏
 private:
-    int row;  // ︽计
-    int col;  // 计
-    int score;  // だ计
-    int level;  // 单
-    vector<vector<int>> map;  // 瓜
-    Block currentBlock;  // 讽玡よ遏
-    bool isGameOver();  // 耞笴栏琌挡
-    void updateMap();  // 穝瓜
-    void updateScore();  // 穝だ计
-    void updateLevel();  // 穝单
-    void printMap();  // ゴ瓜
-    void printScore();  // ゴだ计
-    void printLevel();  // ゴ单
+    Board board;
+    Block curr_piece;
+    std::vector<Move> final_pionts;
+    int score;
+    int speed;
+    bool run;
+public:
+
+    Game();
+    void controls();
+    void running();
+    bool hit_built_points_down();
+
+    bool checked_move(enum move_direction dir);
+    bool checked_rotate();
+
+    void draw();
+    void refresh_final_points();
+
+    void ClearScreen();
+    bool game_over();
+    bool regame();
+
+
 };
+
 
 #endif
