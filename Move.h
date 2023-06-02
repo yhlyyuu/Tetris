@@ -1,5 +1,5 @@
-#ifndef CELL_H
-#define CELL_H
+#ifndef MOVE_H
+#define MOVE_H
 #include <iostream>
 class Move {
 private:
