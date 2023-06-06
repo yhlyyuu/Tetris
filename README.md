@@ -21,16 +21,16 @@
 ![螢幕擷取畫面 2023-06-02 220417](https://github.com/yhlyyuu/Tetris/assets/126648746/b15cc918-c389-4b41-b9cf-0c70d3b5bc1a)
 
 ## **10.分工資訊**
-1.定義俄羅斯方塊的基本結構(俞華鈴)  
+1.俞華鈴   
   Block.h  
   Block.cpp  
-2.實現俄羅斯方塊的操作(黃煜權)  
+2.黃煜權   
   Move.h  
   Move.cpp  
-3.實現遊戲邏輯(葉芷安)  
+3.葉芷安   
   Board.h  
   Board.cpp  
-4.測試和調試代碼(陳冠廷)
+4.陳冠廷   
   Game.h  
   Game.cpp  
   main.cpp  
